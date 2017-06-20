@@ -1,0 +1,19 @@
+
+Header set Access-Control-Allow-Origin "*"
+
+SetEnvIf HOST "localhost" REWRITEBASE=/~jsh2/jsnb/
+SetEnvIf HOST "js.compsci.school" REWRITEBASE=/
+RewriteEngine on
+
+RewriteBase /
+
+RewriteCond %{REQUEST_URI} ^/filelist$
+RewriteRule ^([A-Za-z0-9]*)$ %{ENV:REWRITEBASE}filelist.php [QSA]
+
+RewriteCond %{REQUEST_URI} !^/index.php
+RewriteCond %{REQUEST_URI} !^/worksheet.html
+RewriteCond %{REQUEST_URI} !.php$
+RewriteCond %{REQUEST_URI} !/$
+#RewriteCond %{REQUEST_URI} !/
+
+RewriteRule ^([A-Za-z0-9_]*)$ %{ENV:REWRITEBASE}worksheet.html?id=$1 [QSA]
