@@ -18,7 +18,7 @@ limitations under the License.
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=1280">
-  <title>JSNB</title>
+  <title>Javascript Worksheets</title>
   <link rel="stylesheet" type="text/css" href="css/style.css">
 
   <script type="text/javascript" src="js/jquery-2.1.3.min.js"></script>
@@ -27,9 +27,9 @@ limitations under the License.
 <body>
   <?php include_once("analyticstracking.php") ?>
   
-  <h1>Welcome to Javascript Worksheet</h1>
+  <h1>Welcome to Javascript Worksheets</h1>
 
-  Javascript Worksheet lets you create interactive javascript worksheets for teaching and other uses. 
+  Javascript Worksheets lets you create interactive worksheets using the JavaScript Language for education and fun. 
   <br /> <br/>
   <a href="worksheet.html?expert">Create New Interactive Worksheet</a>
   <br />
