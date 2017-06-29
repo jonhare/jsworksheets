@@ -49,7 +49,7 @@ limitations under the License.
         }
         $fn = str_replace(".json", "", $file);
 
-        echo "<a href='".$fn."' class='".$containerClass."'><span class='filename'>".$fn."</span> <span class='filetitle'>".$json["name"]."</span></a>";
+        echo "<a href='".$fn."' class='".$containerClass."'><span class='filename'>".$fn."</span> <span class='filetitle'>".$json["name"]."</span></a><br/>";
         $i++;
       }
     }

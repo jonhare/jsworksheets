@@ -120,10 +120,10 @@ function print(id, obj) {
       };
     })();
 
-    var str = obj;
+    var str = obj + "";
     if (typeof(obj) == 'function') str = obj.toString();
-    else if (typeof(obj) != 'string')
-        str = JSON.stringify(obj, null, 2);
+    else if (typeof(obj) === 'object')
+        str = JSON.stringify(obj, null, 2) + "\n";
 
     application.remote.display(id, "<pre>" + escapeHTML(str) + "</pre>");
 }

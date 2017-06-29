@@ -1,0 +1,219 @@
+{
+  "preamble": "/**\n * Load JSON data from a URL synchronously (data will be loaded before this method exits). \n * The URL must have the appropriate CORS headers to avoid browser security issues.\n *\n * @param url The url to load the data from.\n * @return The JavaScript object reconstructed from the data.\n */\nfunction loadData(url) {\n\tvar request = new XMLHttpRequest();\n\trequest.open('GET', url + \"?nocache=\"+new Date().getTime(), false);\n\trequest.send(null);\n\n\treturn JSON.parse(request.responseText);\n}\n\n/**\n * Load JSON data from a URL asynchronously. The method will return immediately, \n * and the callback function will be called at some point in the future, once the\n * data has finished loading. The URL must have the appropriate CORS headers \n * to avoid browser security issues.\n *\n * @param url The url to load the data from.\n * @param cb The callback function to execute once data has been loaded.\n * @return The JavaScript object reconstructed from the data.\n */\nfunction loadDataAsync(url, cb) {\n\tvar request = new XMLHttpRequest();\n\trequest.onreadystatechange = function() {\n    \tif (this.readyState == 4 && this.status == 200) {\n\t       cb(JSON.parse(request.responseText));\n    \t}\n\t};\n\trequest.open(\"GET\", url, true);\n\trequest.send();\n}\n\n/**\n * Convert a JavaScript function to its string representation, and rename it so that\n * it has the given name. Currently this has limitation that the function must be self-\n * contained and not call any other user defined functions or use any outside variables\n * if it is to be successfully executed in a different JavaScript Interpreter.\n *\n * @param fcn The function to convert.\n * @param name The name we like to assign to the function.\n * @return The JavaScript code for the function as a string.\n */\nfunction fcn2string(fcn, name) {\n  var fcnstring = fcn.toString();\n  if (!fcn.name) \n    fcnstring = fcnstring.replace('function (', 'function '+name+'(');\n  else \n    fcnstring = fcnstring.replace('function '+fcn.name+'(', 'function '+name+'(');\n  return fcnstring;\n}\n\n/**\n * Perform a remote call to each server to perform the map operation on the data\n * held by that server with the given function. This function is asynchronous and\n * will return immediately. Each server will work in parallel. The callback will be \n * invoked with the data from the server response when it is ready.\n *\n * @param urls The urls of the servers we want to call.\n * @param mapper The map function to apply. The function must take a single argument\n *               corresponding to an item of data from the server (a string), and \n *               return some object.\n * @param cb The callback function that will have the results passed to it from each server.\n */\nfunction remoteMap(urls, mapper, cb) {\n  var fcnstring = fcn2string(mapper, 'map');\n\n  for (var i=0; i<urls.length; i++)\n  \tloadDataAsync(urls[i] + \"/map?mapfcn=\" + encodeURIComponent(fcnstring), cb);\n}\n\n/**\n * Perform a remote call to each server to perform the map and local reduce \n * operation on the data held by that server with the given function. This \n * function is asynchronous and will return immediately. Each server will \n * work in parallel. The callback will be invoked with the data from the \n * server response when it is ready.\n *\n * @param urls The urls of the servers we want to call.\n * @param mapper The map function to apply. The function must take a single argument\n *               corresponding to an item of data from the server (a string), and \n *               return some object.\n * @param combiner The local reduce function to apply. The function must take two \n *               arguments corresponding to the accumulator object and the result of\n *               the map function. The updated accumulator should be returned.\n * @param cb The callback function that will have the results passed to it from each server.\n */\nfunction remoteMapCombine(urls, mapper, combiner, cb) {\n  var mapfcnstring = fcn2string(mapper, 'map');\n  var comfcnstring = fcn2string(combiner, 'combine');\n  console.log(\"/map_combine?mapfcn=\" + encodeURIComponent(mapfcnstring) + \"&\" + \"combinefcn=\" + encodeURIComponent(comfcnstring));\n  for (var i=0; i<urls.length; i++)\n\t  loadDataAsync(urls[i] + \"/map_combine?mapfcn=\" + encodeURIComponent(mapfcnstring) + \"&\" + \"combinefcn=\" + encodeURIComponent(comfcnstring), cb);\n}\n\nvar TEST_STRINGS = [\"massive interest said no create waning gigantic no are I create massive possibilities undoubtedly contain that are create sentences I believe to that that do there any possibilities once no more said are which massive contain sentences massive gigantic do\",\n\"I once interest are contain sentences create on once word than me interest massive that sentences to this are I no word I interest from there sentences including sentences constraints do sentences will than on the contain the I such\",\n\"that the waning believe to than contribution than massive contain massive no are on create believe that more sentences however no believe word however contain such I significant more massive do possibilities increasingly constraints do waning create there than however\",\n\"create undoubtedly however than that from create contain however including on there same to there significant any that the word do constraints waning more such that there possibilities which possibilities contain that believe on will do to which the believe\",\n\"do which that to word possibilities gigantic this however massive there constraints that including there word than do create I contain do to possibilities which no will massive to including no no I are which believe no possibilities no interest\",\n\"to create word massive do there more I more contain this this are that there which do do juncture on same contribution sentences which to undoubtedly massive than word which believe massive to undoubtedly are me massive are such\",\n\"believe believe I which are I believe however more which such this there word there that undoubtedly contain limit juncture massive waning however significant such which are sentences than word there believe this said there there my constraints the possibilities\",\n\"massive however to once increasingly than on do on do significant constraints there me which limit are possibilities massive on possibilities possibilities gigantic create believe my gigantic waning increasingly significant at possibilities to sentences gigantic to do word this I\",\n\"believe at create massive more possibilities to create to such gigantic gigantic gigantic I however including that once interest to I constraints such any such word once increasingly no the limit sentences interest believe no including massive create interest than\",\n\"such to that the more that do contribution my contain gigantic sentences gigantic are once I which do possibilities believe sentences massive to once do do are there such the on same increasingly the to I the more gigantic at\",\n\"I I my contain do such same such there gigantic same this no that massive however including I massive sentences interest limit gigantic which such I constraints increasingly possibilities limit gigantic my I gigantic I there undoubtedly this same contain\",\n\"create word do which are do are waning which more massive that believe sentences on sentences more undoubtedly create which constraints massive limit juncture believe sentences constraints increasingly sentences will once sentences sentences believe that there massive are word this\",\n\"contain will create which once same which same possibilities there which increasingly contain interest to significant such are are there than more create there from waning possibilities that do no which limit possibilities are the from no on contain such\",\n\"same such are than significant there possibilities are no than my waning limit increasingly once gigantic increasingly possibilities possibilities contribution which that will do constraints than such same create create are are on contain same possibilities create create there this\",\n\"such more do there I to however sentences believe such same the do same waning believe limit to to to more do which on than are waning I that my increasingly possibilities constraints gigantic significant that any however on on\",\n\"once contribution same contain create such interest I once the sentences than believe my massive at interest there there believe word me word to there my constraints create word that to including contain including no massive I are increasingly gigantic\",\n\"the increasingly possibilities limit sentences contain do such the I more more however believe which than no will believe this word that I will word do that which than sentences word same than word increasingly such\",\n\"contain which believe gigantic no the my interest I I sentences that than my believe constraints the more same that that that from believe any that however to once massive to more I do are\",\n\"once create my however gigantic more more no contain the that any create gigantic than the believe contribution believe gigantic I word including contain such more undoubtedly at no possibilities word massive believe will I such to however are no\",\n\"I gigantic massive from that massive this believe including are such including gigantic there that once waning more however that I the however same me contribution including which possibilities massive constraints constraints possibilities constraints constraints sentences once gigantic such there\",\n\"create such I no than create however contribution sentences constraints sentences once this gigantic the to there there this I from my gigantic will massive possibilities on this believe any such are possibilities believe however gigantic to massive are no\",\n\"create to will no which that do I do massive I possibilities such are gigantic undoubtedly this contain are more believe same I do are there massive believe do sentences are such said including this undoubtedly any my there same\",\n\"such such I word in create that same believe interest I same which create contain believe such than do once there no I than such which contain contain constraints waning that including waning undoubtedly my do create me the to\",\n\"there no same such do significant do the do sentences create including increasingly time undoubtedly the contain gigantic believe possibilities create same waning once once no do more massive including do my once however that this such that same do\",\n\"possibilities than are once believe same will any believe than contain in my on the gigantic limit are to more gigantic sentences including believe are possibilities possibilities on there more on possibilities will increasingly there such more constraints there any\"];",
+  "cell_list": [
+    [
+      true,
+      "# Introduction to the interactive coding environment\n\nFor this lab you'll be using this interactive worksheet. The worksheet consists of blocks of written instructions, blocks of code that can be executed within your browser, and blocks showing the output of the preceding code blocks (once they have been run). You can edit code blocks by first clicking on them. When a code block is selected, you can run the code by clicking the run button to the right of the block, or by typing Shift-Enter. Start by running the following code block:",
+      true,
+      null
+    ],
+    [
+      false,
+      "print(\"hello world\");",
+      false,
+      null
+    ],
+    [
+      true,
+      "For the exercises in this worksheet, your are going to be using the JavaScript programming language. Even if you haven't explicitly used JavaScript before the syntax and semantics should be relatively familiar to you. If you want to get a feel for the JavaScript language in more depth before starting this worksheet, then try out the [Introduction to JavaScript](JSIntro) worksheet.",
+      true,
+      null
+    ],
+    [
+      true,
+      "# Exercise 1: Counting Words\n\n**Complete the function below to count the occurrences of each word in the given string.** Resulting word counts should be stored in a dictionary that is returned by the function.",
+      true,
+      null
+    ],
+    [
+      false,
+      "/**\n * Count the number of individual word occurrences in a string. Counts should \n * be made case-insensitive by making all words lower-case.\n * \n * @param str The string to process\n * @return A dictionary object that maps words to their counts: {word1: count1, word2: count2, ...} \n */\nfunction countWords(str) {\n  // This converts the string to lower case and breaks the input into an array of \n  // words using any series of non-alphanumeric characters to split the words\n  var parts = str.toLowerCase().split(/\\W+/); \n  \n  // This creates an empty dictionary object for you to populate with words and counts\n  var out = {}; \n  \n  //TODO: Complete this function by looping over the array of words with a \n  //`for` loop and adding/incrementing them in the dictionary\n  \n  return out;\n}\n\n//This will test the function when it is run:\nprint( countWords(\"A computer would deserve to be called intelligent if it could deceive a human into believing that it was human\") );",
+      false,
+      null
+    ],
+    [
+      true,
+      "# Exercise 2: Counting words across strings\n\n**Complete the following code by writing a loop to apply the `countWords` function from above to each of the strings in the `text` variable.** Store the results in the `counts` array such that the first element corresponds to the counts of the first string in the texts array, and the second elements corresponds to the words counts of the second element.",
+      true,
+      null
+    ],
+    [
+      false,
+      "var texts = [\"this is just a test string\", \"this is another\"];\nvar counts = [];\n\n// TODO: Write a loop to populate the counts array with the word counts for each string in the texts array\n\nprint(counts);",
+      false,
+      null
+    ],
+    [
+      true,
+      "## Introducing `map`\nUsing a loop to operate the `countWords` function on each string in the array is fine, but we end up writing quite a lot of code to do a simple task. This kind of task, where we independently apply an operation to each element of an array and store the results in a new array is quite common. In functional programming, such an process is called a __map__ because it provides a one-to-one mapping of a set of values to another set of values using a function that independently operates on each element.\n\nThe JavaScript language has some features that make it work like a functional programming language. In particular, in JavaScript, functions themselves are variables, so they can be in turn passed to other functions as arguments. JavaScript arrays have a built-in method called `map` which takes a function, and applies it independently to each element in the array, and returns the results in a new array. **Try running the following code to see this in action:**",
+      true,
+      null
+    ],
+    [
+      false,
+      "function myMap(val) {\n  return val - 1;\n}\n\nvar result = [1,2,3,4].map(myMap);\n\nprint(result);",
+      false,
+      null
+    ],
+    [
+      true,
+      "## Counting words across strings using `map`\n\nRather than using a loop to compute the word counts for each string in an array, you could instead `map` the array with the `countWords` function. **Finish the code below so that it uses a `map` operation to count the words.**",
+      true,
+      null
+    ],
+    [
+      false,
+      "var texts = [\"this is just a test string\", \"this is another\"];\n\n//TODO: complete this using the map method of the texts array\n//var counts = \n\n    \nprint(counts);",
+      false,
+      null
+    ],
+    [
+      true,
+      "# Exercise 3: Aggregating counts with `reduce`\n\nThe `reduce` method is designed to transform an array into a single value by applying the supplied function to each element of the array together with an accumulator. Unlike with `map`, the function supplied to `reduce` takes two arguments: the first is the accumulator, and the second is the current element from the array being processed. The reduce method itself also has two arguments: the function comes first, and is followed by the initial value of the accumulator.\n\nThe `reduce` method has many potential uses, but a common one is for computing aggregate statistics from an array of numbers, such as the sum. The following code block demonstrates a how the sum of an array of numbers can be computed. **Try running it to see the results.**",
+      true,
+      null
+    ],
+    [
+      false,
+      "function sum(accumulator, currentValue) {\n  return accumulator + currentValue;\n}\n\nprint( [0,1,2,3,4,5,6,7,8,9,10].reduce(sum, 0) );",
+      false,
+      null
+    ],
+    [
+      true,
+      "A `reduce` operation does not necessarily have to result in a numeric outcome, or use a numeric accumulator. In fact, the outcome and accumulator could be any object, including a dictionary or a list. **Try running the two following code blocks to see the output of some reduce functions with different accumulator/result types:**",
+      true,
+      null
+    ],
+    [
+      false,
+      "function nop(accumulator, currentValue){\n  accumulator.push(currentValue);\n  return accumulator;\n}\nprint( [1,2,3].reduce(nop, []) );",
+      false,
+      null
+    ],
+    [
+      false,
+      "function histogram(accumulator, currentValue){\n  if (!accumulator[currentValue])\n    accumulator[currentValue] = 0;\n  accumulator[currentValue] = accumulator[currentValue] + 1;\n  return accumulator;\n}\nprint( [ 'a', 'a', 'b' ].reduce(histogram, {}) );\n\n",
+      false,
+      null
+    ],
+    [
+      true,
+      "**Now you've seen how reduce can be used in practice, complete the following `reduce` function to merge the counts from multiple strings that you computed earlier in Exercise 2.** Our `counts` array from Exercise 2 contains dictionary objects with keys corresponding to words, and values corresponding to counts for the associated word. Your `mergeCounts` reduce function will need to iterate over all the keys of each element in the counts array, and accumulate the corresponding counts. As you can see from the initial code, you can get the keys of a dictionary using `Object.keys(dict)`. The histogram function above should give you some ideas about how to complete the function.",
+      true,
+      null
+    ],
+    [
+      false,
+      "/**\n * Merge the word-counts from a single string into an accumulator dictionary.\n * This can be applied to an array of word-count dictionaries using reduce.\n * \n * @param acc The accumulator dictionary\n * @param val The word-counts dictionary to process\n * @return the accumulator dictionary \n */\nfunction mergeCounts(acc, val) {\n  var keys = Object.keys(val); //this gets the keys of the val dictionary as an array\n  \n  //TODO: complete this so each word-count in the val object is added to the accumulator\n  \n  \n  return acc;\n}\n\n//Note: The counts variable was computed and set in Ex. 2. \nvar merged = counts.reduce(mergeCounts, {});\nprint(merged);",
+      false,
+      null
+    ],
+    [
+      true,
+      "# Exercise 4: Sorting word occurrences\n\nIn a moment we're going to write a function to sort the words by the number of times each word occurs across our collection of strings. Before we dive in, let's look at how sorting of an `array` can be accomplished in JavaScript. The `sort` method sorts an array in-place. Without any argument given, elements are sorted by converting them to strings and comparing strings in [Unicode code point order](https://en.wikipedia.org/wiki/Code_point) (so words using the English alphabet would be sorted in alphabetical order, but with all the upper-case characters having precedence over the lower-case ones). If we supply a comparator function to the sort method we can control the ordering; this is particularly useful for sorting arrays of objects (or other arrays).\n\nIf the comparator function is supplied, the array elements are sorted according to the return value of the function. If a and b are two elements being compared, then:\n\n* If `compareFunction(a, b)` is less than `0`, sort `a` to a lower index than `b`, i.e. a comes first.\n* If `compareFunction(a, b)` returns `0`, leave `a` and `b` unchanged with respect to each other, but sorted with respect to all different elements.\n* If `compareFunction(a, b)` is greater than `0`, sort `b` to a lower index than `a`.\n* `compareFunction(a, b)` must always return the same value when given a specific pair of elements `a` and `b` as its two arguments. If inconsistent results are returned then the sort order is undefined.\n\nThe following code block demonstrates how we can sort a composite array (an array containing arrays) based on the second value of each inner array, as well as showing how the default sorting will perform. We additionally use a `map` function to select only the first element of the sorted array for printing. **Run the code below and have a play with it to make sure you understand what is happening.**",
+      true,
+      null
+    ],
+    [
+      false,
+      "var data = [['t', 10, 1], ['c', 1, 1], ['a', 5, 3]];\n\nprint(\"Default sorting\\n\");\ndata.sort();\nprint( data.map(function(x) {return x[0];}) );\n\nprint(\"\\nSorting by increasing second element of inner array\\n\");\ndata.sort(function(a,b) {return a[1] - b[1];});\nprint( data.map(function(x) {return x[0];}) );\n",
+      false,
+      null
+    ],
+    [
+      true,
+      "We're now in a position to write a function to help us generate a list of words and their counts, sorted by decreasing count. Like many languages, JavaScript's dictionary objects do not have an explicit order associated with the keys, so we first need to convert our dictionary of words and counts to a form which will allow us to perform sorting; in particular we need to convert the dictionary to a list of objects, where each object contains the word and count. For this exercise we'll use an array whose first element is the word, and second element is the count as our _object_ to store in the array. Note that this is however an arbitrary choice, and we could have equally used a dictionary. **Complete the following function so that it produces a list of the words and counts in decreasing count order:**",
+      true,
+      null
+    ],
+    [
+      false,
+      "/**\n * Convert the provided word-count dictionary into a composite array\n * (array of arrays), such that first element of the inner array is \n * the word, and the second is the count. Sort the resultant array by\n * decreasing word count and return it.\n * \n * @param counts The word-counts dictionary to process\n * @return the sorted array of [word,count] arrays\n */\nfunction sortCounts(counts) {\n  var result = []; //the result array\n  \n  //TODO: add each key and corresponding value to an array, and add it\n  //to the results object. Once this has been done for all keys, sort \n  //the results array by decreasing word count, and return the result.\n  \n  \n  \n  return result;\n}\n\nprint(sortCounts(merged));",
+      false,
+      null
+    ],
+    [
+      true,
+      "## Exercise 5: Putting it all together - counting word occurrences across strings",
+      true,
+      null
+    ],
+    [
+      true,
+      "Now we've written functions that can be applied to the map and reduce methods, and a function that produces sorted word counts, let's put all the pieces together and count the words on a longer piece of text. We've pre-populated an array of strings in a variable called `TEST_STRINGS`. **Use the code box below to find the hidden sentence that can be reconstructed by listing the words from the `TEST_STRINGS` array in decreasing order.**",
+      true,
+      null
+    ],
+    [
+      false,
+      "//The variable TEST_STRINGS is a pre-filled array of strings. We can print it to see the contents:\nprint(TEST_STRINGS);\n\n//TODO: use the map and reduce methods with the functions you have written above\n//to compute the word counts across all strings and print out the words in order \n//of decreasing count (without showing the counts)\n\n\n",
+      false,
+      null
+    ],
+    [
+      true,
+      "# Exercise 6: Filtering data\n\nWe've seen how we can use functions to `map`, `reduce` and `sort` an array. There is one further common functional programming paradigm that we should explore: filtering of an array of data. Filtering an array using the `filter` method removes elements from that array based on a function that you provide. That function that is invoked with each element of the array in turn, and is expected to either return `true` or `false` (or equivalently, 1 or 0). If the function returns `true`, then the element will be retained in the resultant array.\n\n**Run the code below to see an example of a filter in action. Can you modify the code to make the filtered array only contain even numbers, or values greater than 3?**",
+      true,
+      null
+    ],
+    [
+      false,
+      "var arr = [1,2,3,4,5,6];\n\nfunction oddNos(val) {\n  return val % 2;\n}\n\nprint(arr.filter(oddNos));",
+      false,
+      null
+    ],
+    [
+      true,
+      "# What happens if we have \"Big Data\"? \n\nOne of the key advantages of functional programming using map and reduce is that it makes it easier to write data processing programs that are concurrent or run in parallel. This can even extend to the case where the data is located on different physical servers, as we'll see in the following exercises.\n\nFor these exercises, we've collected a large dataset of documents (well known books), and deployed them across three different web servers in JSON format. Each server contains the text from a number of different books. **You can see the raw data by visiting each of the servers for yourself:**\n\n* [http://bookdata1.herokuapp.com](http://bookdata1.herokuapp.com)\n* [http://bookdata2.herokuapp.com](http://bookdata2.herokuapp.com)\n* [http://bookdata3.herokuapp.com](http://bookdata3.herokuapp.com)",
+      true,
+      null
+    ],
+    [
+      true,
+      "# Exercise 7: Exploring pull-computation\n\nLet's consider how to compute the word counts across all the books on the three servers. The most obvious approach is to download all the data and store it locally in an array, and then perform the processing. In the following code block we'll do just that. This type of approach is often referred to as _pull computation_ because we're pulling the data to the machine that will do the processing.\n\nWe've provided the code to download the data and to print the result below. **You need to add the code to count the words from the list of texts in the `data` variable.** Note that when you run the code it will take a few seconds for the result to be displayed. This is because we need to wait for each web server in turn to provide the (approximately 8MB) of data that it holds before we can start the actual counting. \n",
+      true,
+      null
+    ],
+    [
+      false,
+      "var data = [];\n\ndata = data.concat(loadData(\"http://bookdata1.herokuapp.com\"));\ndata = data.concat(loadData(\"http://bookdata2.herokuapp.com\"));\ndata = data.concat(loadData(\"http://bookdata3.herokuapp.com\"));\n\nvar results;\n\n//TODO: compute the sorted word counts for the texts in the data variable \n//and store the results in the results variable\n\n\n\n//This will print out all the words occurring more than 50000 times with their counts\nprint(results.filter(function(word_count) { return word_count[1] > 50000; }));",
+      false,
+      null
+    ],
+    [
+      true,
+      "# Exercise 8: Exploring push computation\n\nPull computation as explored in the previous exercise has two problems: \n\n* Firstly all the data needs to be transferred across the network and stored locally; obviously if the data was really big this could be a problem because we might not be able to fit it in RAM, or even on local storage.\n* Secondly, the process was entirely performed in serial: we downloaded the data from each server in turn to create the local `data` array, and then processed that one step at a time.\n\nWouldn't it be nice if we could make better use of the computational resources? Ideally, we would make each of the web servers hosting the data do some of the computation, and we'd allow this to happen in parallel, so only the final bit of processing needs to be performed locally (and serially). Such a concept is often called _push computation_ because we _push_ the computation to where the data is stored, rather than _pulling_ the data to the local computer.\n\nIn terms of our word counting problem, an obvious way to push out the computation would be to ask each server to perform the initial `map` operation with the `countWords` function. We could then just download the resultant intermediate word counts and perform the `reduce` and `sort` locally. We have provided the code below to perform these steps for you. **Try running it and compare the results to the ones you computed above.** As before, this might take a few seconds to produce a result because of the data that needs to be transferred over the network (although this is significantly smaller at around 1.3MB).\n",
+      true,
+      null
+    ],
+    [
+      false,
+      "var urls=[\"http://bookdata1.herokuapp.com\", \"http://bookdata2.herokuapp.com\", \"http://bookdata3.herokuapp.com\"];\nvar i=0; //a counter to use within the callback function to see how many times it has been called\nvar counts = []; //the intermediate results\n\n//this callback function will be invoked on each server response\nfunction cb(result) {\n  //when we get a response, we add it to the counts array\n  counts = counts.concat(result);\n  //and increment the counter\n  i++;\n  \n  //if we have been invoked the same number of times as there is URLs\n  //we should perform the final local computation\n  if (i === urls.length) {\n    //perform the reduce and sort steps:\n    var results = sortCounts(counts.reduce(mergeCounts,{}));\n    \n    //print the results\n    print(results.filter(function(word_count) { return word_count[1] > 50000; }));\n  }\n}\n\n//the provided remoteMap function sends the countWords function to each server to execute.\n//when a server responds the cb function is called with the result\nremoteMap(urls, countWords, cb);",
+      false,
+      null
+    ],
+    [
+      true,
+      "Behind the scenes, the above code passes the source code of the `countWords` function to each server as part of the URL: \n\n<a target=\"_blank\" style=\"overflow-wrap: break-word;word-wrap: break-word;-ms-word-break: break-all;word-break: break-all; word-break: break-word;\" href=\"http://bookdata1.herokuapp.com/map?mapfcn=function%20map(str)%7Bvar%20parts%3Dstr.toLowerCase().split(%2F%5CW%2B%2F)%3Bvar%20out%3D%7B%7D%3Bfor%20(var%20i%3D0%3B%20i%3Cparts.length%3B%20i%2B%2B)%7Bif%20(!out%5Bparts%5Bi%5D%5D)%7Bout%5Bparts%5Bi%5D%5D%20%3D%200%3B%7Dout%5Bparts%5Bi%5D%5D%2B%2B%3B%7Dreturn%20out%3B%7D\">http://bookdata1.herokuapp.com/map?mapfcn=function%20map(str)%7Bvar%20parts%3Dstr.toLowerCase().split(%2F%5CW%2B%2F)%3Bvar%20out%3D%7B%7D%3Bfor%20(var%20i%3D0%3B%20i%3Cparts.length%3B%20i%2B%2B)%7Bif%20(!out%5Bparts%5Bi%5D%5D)%7Bout%5Bparts%5Bi%5D%5D%20%3D%200%3B%7Dout%5Bparts%5Bi%5D%5D%2B%2B%3B%7Dreturn%20out%3B%7D</a>\n\nand the server uses this as the function to apply to the array of data it holds using `map`. The results of the `map` are then rendered as JSON. **Click on the link above to see the result of mapping the data held by the `bookdata1` server.** You should be able to clearly see that the result is an array of dictionaries containing the words and counts for each document.\n\nWhilst we have offloaded some of the processing to the server, we could clearly do more. In particular, in the case of word counting, it is apparent that for each server, we don't particularly care about having the results from each book separately - it would be fine if the server just returned the combined (i.e. reduced) counts across its own books, and we could then sum across each server locally before performing the sort. In real distributed data processing systems, the application of a reduce immediately after the map on each server is often referred to as a _combine_.\n\nOur _book data_ server has the capability to perform an intermediate combine built in (through the addition of an extra parameter to the URL that describes the reduce function to use in the combine step). **Run the code below to try this approach and verify the results are the same as before.** Notice how we don't need to adjust the callback function from the one above - each server now responds with its aggregate data instead of an array of data, but because all these responses are still concatenated in the `counts` array, we still need to perform a secondary `reduce` operation to distil the three sets of counts down to a single one. As before it might take a few seconds to run, but the data per server being returned is now only about 500KB.",
+      true,
+      null
+    ],
+    [
+      false,
+      "var urls=[\"http://bookdata1.herokuapp.com\", \"http://bookdata2.herokuapp.com\", \"http://bookdata3.herokuapp.com\"];\nvar i=0; //a counter to use within the callback function to see how many times it has been called\nvar counts = []; //the intermediate results\n\n//this callback function will be invoked on each server response\nfunction cb(result) {\n  //when we get a response, we add it to the counts array\n  counts = counts.concat(result);\n  //and increment the counter\n  i++;\n  \n  //if we have been invoked the same number of times as there is URLs\n  //we should perform the final local computation\n  if (i === urls.length) {\n    //perform the reduce and sort steps:\n    var results = sortCounts(counts.reduce(mergeCounts,{}));\n    \n    //print the results\n    print(results.filter(function(word_count) { return word_count[1] > 50000; }));\n  }\n}\n\n//the provided remoteMapCombine function sends the countWords function\n//and the mergeCounts function to each server to execute.\n//when a server responds the cb function is called with the result\nremoteMapCombine(urls, countWords, mergeCounts, cb);",
+      false,
+      null
+    ],
+    [
+      true,
+      "# Exercise 9: compare push versus pull\n\n**Now you've implemented two push methods and the pull method, try running each one three times and using you watch or phone measure how long it takes for the result to be produced each time. Compute the average time for the three methods. What do you notice?**\n\nYou should see that the push computation is faster; not only is it distributing the processing of the data, but more importantly it is reducing the amount of data that needs to be transferred over the internet. The latter point is important because computer networks are incredibly slow when compared to, for example, moving data between RAM and the CPU. Reducing the amount of data that needs to be transferred is a key factor in real systems that do computations on \"big data\".",
+      true,
+      null
+    ]
+  ],
+  "title": "Functional Programming and Big Data Processing",
+  "allowReorder": false,
+  "allowCreation": false,
+  "titleLock": true
+}

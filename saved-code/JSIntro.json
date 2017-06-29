@@ -1,0 +1,183 @@
+{
+  "preamble": "",
+  "cell_list": [
+    [
+      true,
+      "# Introduction to the interactive coding environment\n\nFor this lab you'll be using this interactive worksheet. The worksheet consists of blocks of written instructions, blocks of code that can be executed within your browser, and blocks showing the output of the preceding code blocks (once they have been run). You can edit code blocks by first clicking on them. When a code block is selected, you can run the code by clicking the run button to the right of the block, or by typing Shift-Enter. Start by running the following code block:",
+      true,
+      null
+    ],
+    [
+      false,
+      "print(\"hello world\");",
+      false,
+      null
+    ],
+    [
+      true,
+      "# The type system\n\nThe JavaScript language is __loosely typed__. This means that the types of each variable is not made explicit by the variable declaration. Variables themselves are declared using the `var` keyword.\n\nJavaScript has the following simple types:\n\n* Numbers\n* Strings\n* Booleans\n* `null`\n* `undefined`\n* __Object Types__\n\t- Objects\n\t- Functions\n\t- Arrays\n    \nNumbers, Strings and Booleans are all said to be __object-like__ in the sense that they have methods associated with them, however unlike the actual __object types__ they are immutable and cannot be changed once created. The `typeof` keyword returns the type of an object.\n\n_Note that throughout this worksheet we'll be using the `print` function to display results within the worksheet. This is not a native part of JavaScript, and is provided by the worksheet implementation itself._",
+      true,
+      null
+    ],
+    [
+      false,
+      "var a; //declare a variable called a\n\na=1; //a is a Number\nprint(typeof a + \"\\n\");\n\na=\"foo\"; //a is now a String\nprint(typeof a + \"\\n\");",
+      false,
+      null
+    ],
+    [
+      true,
+      "# JavaScript syntax\n\nJavaScript syntax is mostly C-like (or Java-like) languages:",
+      true,
+      null
+    ],
+    [
+      false,
+      "//this is a comment\n/* so it this */\n\n//statements like if use braces to define blocks:\nif (true) {\n //this comment is inside the block \n}\n\n//all statements end in a semicolon:\nvar tmp;\n\n//Strings can be created using either single or double quotes\nvar a = \"this is a string\";\nvar b = 'so is this';\n\n//The backslash is the escape character\nvar newline = '\\n';\n\n//Strings can be concatenated using +\nprint(a + newline + b + newline);\n\n//arithmetic is performed using the standard characters ()/*+-\n//and follows the standard rules of precedence\nprint(1+(1*2)/3);\nprint(newline);\n\n//% is the modulus operator\nprint(4%2);\nprint(newline);\n\n// ++ increments a number and -- decrements it. \nvar i=0;\ni++;\nprint(i);\nprint(newline);\n\n// ===/!== perform equality and not-equality tests\n//(note ==/!= will also generally work, but should be avoided)\nprint(1===1); \nprint(newline);\nprint(1!==0); \nprint(newline);\n",
+      false,
+      null
+    ],
+    [
+      true,
+      "# Loops\n\nJavaScript supports the standard looping constructs:",
+      true,
+      null
+    ],
+    [
+      false,
+      "for (var i=0; i<10; i++) {\n  print(\"hello\"); \n}\n\nvar j=0;\nwhile (j<2) {\n  print(\"\\n\");\n  j++;\n}\n\ndo {\n  print(\"HELLO\");\n  j++;\n} while (j<3);",
+      false,
+      null
+    ],
+    [
+      true,
+      "# Branching\n\nIf (-else and -else-if) branching and switch statements are both supported using C syntax, but in the case of switch, the expression doesn't need to be constant:",
+      true,
+      null
+    ],
+    [
+      false,
+      "if (true) {\n  print(\"true\\n\");\n} else if (false) {\n  print(\"false\\n\");\n} else {\n  print(\"Uh oh!\\n\");\n}\n\nvar a = \"foo\";\n\nswitch (a) {\n  case \"foo\":\n    print(\"bar\\n\");\n    break;\n  default:\n    print(\"default\\n\");\n}",
+      false,
+      null
+    ],
+    [
+      true,
+      "# Functions\n\nFunctions can be created using the function keyword. Note that you don't specify any types of arguments or the return value:",
+      true,
+      null
+    ],
+    [
+      false,
+      "function hello(name) {\n  print(\"hello \" + name +\"!\");\n}\n\nhello(\"Alice\");",
+      false,
+      null
+    ],
+    [
+      true,
+      "Functions can also be created by assigning to a variable:",
+      true,
+      null
+    ],
+    [
+      false,
+      "var hello2 = function(name) {\n  print(\"hello \" + name +\"!\");\n}\nhello2(\"Bob\");",
+      false,
+      null
+    ],
+    [
+      true,
+      "and, because functions are just objects, they can be assigned to other variables:",
+      true,
+      null
+    ],
+    [
+      false,
+      "function add(a,b) {\n  return a+b;\n}\nprint(add(1,1) + \"\\n\");\nvar plus = add;\nprint(plus(1,1) + \"\\n\");",
+      false,
+      null
+    ],
+    [
+      true,
+      "and even passed to different functions:",
+      true,
+      null
+    ],
+    [
+      false,
+      "function add(a,b) {\n  return a+b;\n}\n\nfunction performMath(a, b, fcn) {\n  print(fcn(a, b));\n}\n\nperformMath(1,1, add);",
+      false,
+      null
+    ],
+    [
+      true,
+      "# Arrays and their methods\n\nJavaScript arrays let us store lists of _objects_ or values. Arrays are constructed and accessed using square brackets:",
+      true,
+      null
+    ],
+    [
+      false,
+      "var empty = []; //an empty array\nvar strArr = [\"hello\", \"world\"]; //an array of strings\nvar mixedArr = [\"hello\", 1, 2, 3, [], [1,2]]; //array of mixed types\n\nprint(strArr[1]); //print the second element",
+      false,
+      null
+    ],
+    [
+      true,
+      "The `length` property of an array tells us how many things are in it. We can use this in a loop for example:",
+      true,
+      null
+    ],
+    [
+      false,
+      "var strArr = [\"hello\", \"world\"];\n\nfor (var i=0; i<strArr.length; i++)\n  print(strArr[i] + \"\\n\");",
+      false,
+      null
+    ],
+    [
+      true,
+      "Array objects also have many useful methods. A full list can be found [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array). These methods allow us to manipulate the array, for example by adding or removing elements:",
+      true,
+      null
+    ],
+    [
+      false,
+      "var strArr = [1,2];\n\nstrArr.push(3); //add a new value to the array\nprint(strArr);\nstrArr.splice(0, 1); //remove 1 item from the first position\nprint(strArr);",
+      false,
+      null
+    ],
+    [
+      true,
+      "# Custom objects and dictionaries\n\nJavaScript also allows us to create custom objects and dictionaries. Fundamentally, JavaScript objects are nothing more than sets of pairs of keys and values. They are hence akin to dictionary or hash-table data structures in other languages. The keys in a JavaScript object are always represented as Strings; although it's possible to specify a key as any type of object, behind the scenes it will be translated to a String. Values can be any type, including functions (hence it becomes possible to endow an object with methods). \n\nCreating a new object is done using braces `{}`. Accessing the value for a given key can be performed using square-brace notation `[]`, or in some cases (subject to the key name being a valid `identifier` - not containing spaces or being a reserved word) using dot `.` notation: ",
+      true,
+      null
+    ],
+    [
+      false,
+      "var a = {}; //an empty object\nvar b = {name: \"Alice\", \"job title\": \"JavaScript Programmer\"}; //an object with initial key-value pairs\n\nprint(b.name + \"\\n\"); //using dot-notation to access a property\nprint(b['name'] + \"\\n\"); //using bracket notation to do the same\n\nprint(b['job title'] + \"\\n\"); //in this case we can't use dot notation because of the space\n\n//We can also add new properties:\na.name = \"Bob\";\na[\"job title\"] = \"cryptography expert\";\na.hobbies=[\"swimming\", \"hacking\"];\nprint(a);\n\n//and remove them using the delete operator:\ndelete a.hobbies;\nprint(a);",
+      false,
+      null
+    ],
+    [
+      true,
+      "The `Object` object contains many useful methods for manipulating custom objects. More information can be found [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object). For example, you might want to get all the keys of your object as list so you can loop through them:",
+      true,
+      null
+    ],
+    [
+      false,
+      "var a = {name: \"Alice\", \"job title\": \"JavaScript Programmer\"};\nvar allkeys = Object.keys(a);\nprint(allkeys);\n\nfor (var i=0; i<allkeys.length; i++) \n  print(allkeys[i] + \": \" + a[allkeys[i]]+\"\\n\");",
+      false,
+      null
+    ],
+    [
+      true,
+      "# Final word\n\nHopefully you've found this short JavaScript primer useful. A good reference for finding out more about the JavaScript Language is the Mozilla developer site: https://developer.mozilla.org/en-US/docs/Web/JavaScript/",
+      true,
+      null
+    ]
+  ],
+  "title": "A Quick Introduction to the JavaScript Language&nbsp;",
+  "allowReorder": false,
+  "allowCreation": false,
+  "titleLock": true
+}

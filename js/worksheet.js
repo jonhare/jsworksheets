@@ -281,7 +281,10 @@ function saveWorksheet() {
 
 //show the save dialog
 function showSave(code) {
-	$("#saveDialogInner").html("File Identifier: "+code+"<br/></br> You can access this worksheet at: <a href='http://js.compsci.school/'"+code+">http://js.compsci.school/"+code+"</a>");
+	var url = window.location.href.slice(0, window.location.href.lastIndexOf('/')+1) + code;
+	if (expert) url += '?expert';
+
+	$("#saveDialogInner").html("File Identifier: " + code + "<br/></br> You can access this worksheet at: <a href='"+url+"'>"+url+"</a>");
 	$("#dialogBackground").css("display", "block");
 	$("#saveDialog").css("display", "block");
 }
@@ -311,9 +314,17 @@ $("#config-button").click(function() {
 //provided
 var api = {
 	display: function(id, content) {
+		content = content.replace(/\n/, "<br>");
 		var ele = $("#"+id);
-		if (ele.length == 1)
-			ele.html(ele.html() + content);
+		if (ele.length == 1) {
+			var newcontent = ele.html() + content;
+			if (newcontent.length > 1000000) {
+				ele.attr('id', id+"locked");
+				ele.html(ele.html() + '<div><pre style=\"color: red\">Maximum content size exceeded. No more output will be written.</pre></div>');
+			} else {
+				ele.html(ele.html() + content);
+			}
+		}
 	},
 	clear: function(id) {
 		var ele = $("#"+id);
@@ -343,10 +354,12 @@ function initControls(expert) {
 	$("#controls").hide();
 }
 
+var expert = false;
+
 // called after the plugin is loaded
 var start = function() {
 	// Get the data for this worksheet
-	var expert = getUrlParameter('expert') === true;
+	expert = getUrlParameter('expert') === true;
 	if (!expert) {
 		$("[expert]").addClass("expert");
 	}
@@ -357,6 +370,9 @@ var start = function() {
 		worksheet_id = window.location.href.split("/")
 		if (worksheet_id)
 			worksheet_id = worksheet_id[worksheet_id.length - 1];
+		if (worksheet_id.indexOf('?') !== -1) {
+			worksheet_id = worksheet_id.slice(0, worksheet_id.indexOf('?'));
+		}
 		if (worksheet_id.startsWith("worksheet.html"))
 			worksheet_id = null;
 	} 
@@ -368,6 +384,7 @@ var start = function() {
 		$("#loading").hide();
 		$("#body").fadeTo(0, 1);
 	} else {
+		console.log("loading " + worksheet_id + " " + expert)
 		//load the worksheet from the given file
 		var file = "saved-code/" + worksheet_id + ".json";
 		$.getJSON(file).done(function(data) {
