@@ -153,7 +153,7 @@
     ],
     [
       true,
-      "# Exercise 6: Filtering data\n\nWe've seen how we can use functions to `map`, `reduce` and `sort` an array. There is one further common functional programming paradigm that we should explore: filtering of an array of data. Filtering an array usinf the `filter` method removes elements from that array based on a function that you provide. That function that is invoked with each element of the array in turn, and is expected to either return `true` or `false` (or equivalently, 1 or 0). If the function returns `true`, then the element will be retained in the resultant array.\n\n**Run the code below to see an example of a filter in action. Can you modify the code to make the filtered array only contain even numbers, or values greater than 3?**",
+      "# Exercise 6: Filtering data\n\nWe've seen how we can use functions to `map`, `reduce` and `sort` an array. There is one further common functional programming paradigm that we should explore: filtering of an array of data. Filtering an array using the `filter` method removes elements from that array based on a function that you provide. That function that is invoked with each element of the array in turn, and is expected to either return `true` or `false` (or equivalently, 1 or 0). If the function returns `true`, then the element will be retained in the resultant array.\n\n**Run the code below to see an example of a filter in action. Can you modify the code to make the filtered array only contain even numbers, or values greater than 3?**",
       true,
       null
     ],
