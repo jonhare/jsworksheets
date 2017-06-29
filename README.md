@@ -1,3 +1,1 @@
-# jsnb: a javascript notebook
-
-# jsworksheets
+# jsworksheets: Interactive Javascript Programming Worksheets
