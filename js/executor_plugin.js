@@ -13,7 +13,7 @@
  */
 
 //load esprima
-if (importScripts)
+if ('function' === typeof importScripts)
     importScripts("https://unpkg.com/esprima@~4.0/dist/esprima.js");
 else
     window.loadScript("https://unpkg.com/esprima@~4.0/dist/esprima.js");
