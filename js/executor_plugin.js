@@ -98,9 +98,13 @@ function rewriteDisplayCode(source, ident="") {
         if (tmp = isCall(node, meta, "displayError")) entries.push(tmp);
     });
     //slice the source and add the extra param in the correct place
-    entries.sort((a, b) => { return b.end - a.end }).forEach(n => {
-        source = source.slice(0, n.start + n.type.length + 1 ) + ident + ", " + source.slice(n.start + n.type.length + 1);
-    });
+    // entries.sort((a, b) => { return b.end - a.end }).forEach(n => {
+    //     source = source.slice(0, n.start + n.type.length + 1 ) + ident + ", " + source.slice(n.start + n.type.length + 1);
+    // });
+    entries.sort(function(a,b) {return b.end - a.end;}).forEach(function(n) {
+		source = source.slice(0, n.start + n.type.length + 1 ) + ident + ", " + source.slice(n.start + n.type.length + 1);
+    })
+
     return source;
 }
 
